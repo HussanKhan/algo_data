@@ -3,6 +3,13 @@
 #include <string.h>
 #define SIZE 100000
 
+
+// SNOWFLAKE OBJECT for linked list
+typedef struct snowflake_node {
+    int snowflake[6];
+    struct snowflake_node *next;
+} snowflake_node;
+
 int match_clockwise_array(int snowflake1[], int snowflake2[], int startIndex) {
 
     int offset;
@@ -61,51 +68,101 @@ int match_test(int snowflake1[], int snowflake2[]) {
     return 0;
 }
 
-int scan_snowflakes(int snowflakes[][6], int numberOfSnowflakes) {
+int scan_snowflakes(snowflake_node *snowflakes[]) {
 
-    int snowflake1, snowflake2;
+    int index;
+    snowflake_node *node1, *node2;
 
-    for (snowflake1 = 0; snowflake1 < numberOfSnowflakes; snowflake1 ++) {
+    // Go through every entry in snowflakes hash table
+    for (index = 0; index < SIZE; index++) {
 
-        for (snowflake2 = snowflake1+1; snowflake2 < numberOfSnowflakes; snowflake2++) {
+        
+        node1 = snowflakes[index];
+        
+        // We're comparing every snowflake in the bucket with each other
+        // compare the first item to everyother item
+        // then compare second item to every item after the first and itself
+        // n(n-1)
+        while (node1 != NULL) {
 
-            if (match_test(snowflakes[snowflake1], snowflakes[snowflake2])) {
-                return 1;
+            
+            node2 = node1->next;
+            
+            while (node2 != NULL) {
+                
+                if (match_test(node1->snowflake, node2->snowflake)) {
+                    printf("Matching snowflakes found");
+                    return 1;
+                };
+
+                node2 = node2->next;
             }
-
+            
+            node1 = node1->next;
         }
-
+        
     }
-
+    printf("No matching snowflakes found");
     return 0;
 
 }
+
+// returns sum of snowflake
+int hashSnowflake(int snowflake[]) {
+    int i;
+    int hash = 0;
+
+    for (i = 0; i < 6; i++) {
+        hash = snowflake[i] + hash;
+    };
+
+    return hash;
+};
+
+
 
 
 int main(void) {
     
     //CREATE 2-DIM ARRAY OF SNOWFLAKES FROM INPUT
     // SIZE rows of 6 columns
-    static int snowflakes[SIZE][6];
-    int numberOfSnowflakes, row, snowflakeLeg;
+    static snowflake_node *snowflakes[SIZE] = {NULL};
+    snowflake_node *snowflakePointer;
+    int numberOfSnowflakes, row, snowflakeLeg, snowflakeHash;
     
     scanf("%d", &numberOfSnowflakes);
     
     // read each row of input
     for (row = 0; row < numberOfSnowflakes; row++) {
-        
+
+        // Allocate memory for snowflake from input
+        // note the pointer is now pointing at a memory location
+        snowflakePointer = malloc(sizeof(snowflake_node));
+
+        // no memory
+        if (snowflakePointer == NULL) {
+            fprintf(stderr, "Memory error");
+            exit(1);
+        };
+
         // read each column of data
-        for (snowflakeLeg = 0; snowflakeLeg < 6; snowflakeLeg ++) {
-            scanf("%d", &snowflakes[row][snowflakeLeg]);
-        }
+        for (snowflakeLeg = 0; snowflakeLeg < 6; snowflakeLeg++) {
+            // loading data into struct snowflake var
+            scanf("%d", &snowflakePointer->snowflake[snowflakeLeg]);
+        };
+
+        // sending snowflake array varible from struct to function
+        snowflakeHash = hashSnowflake(snowflakePointer->snowflake);
+
+        // Set pointer to what ever is stored at snowflakes[snowflakeHash]
+        snowflakePointer->next = snowflakes[snowflakeHash];
+
+        // Set snowflakes[snowflakeHash] to address of current node
+        snowflakes[snowflakeHash] = snowflakePointer;
 
     }
 
-    if (scan_snowflakes(snowflakes, numberOfSnowflakes)) {
-        printf("Twin snowflakes found");
-    } else {
-        printf("No twin snowflakes found");
-    }
+    scan_snowflakes(snowflakes);
 
     return 0;
 }
