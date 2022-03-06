@@ -116,7 +116,7 @@ int hashSnowflake(int snowflake[]) {
         hash = snowflake[i] + hash;
     };
 
-    return hash;
+    return hash % SIZE;
 };
 
 
