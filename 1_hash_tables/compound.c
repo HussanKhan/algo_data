@@ -75,7 +75,7 @@ int check_hash_table(word_node *hash_table[], char *wordToFind,
   unsigned wordHash;
   word_node *wordptr;
   
-  wordHash = oaat(wordToFind, find_len, NUM_BITS);
+  wordHash = jenkins_one_at_a_time_hash(wordToFind, find_len, NUM_BITS);
   wordptr = hash_table[wordHash];
 
   // if linked list in hash table, just cycle through it
@@ -131,7 +131,6 @@ void find_compound_words(char *words[],
 // LOAD THE HASH TABLE
 int main(void) {
 
-    printf("RUNNING");
     // OUR HASH FUNCTIONS NEED A LIST SIZE OF 2^2
     // SHIFT 1 TO THE RIGHT
     // we expect 120,000 word max, 2^17 is closest
@@ -141,6 +140,10 @@ int main(void) {
     char *inputWordPointer;
     word_node *nodePointer;
     unsigned length, wordHash;
+    int counter = 0;
+    int limit = 3;
+
+    printf("Enter up to %d words\n", limit);
 
 
     // Load first word
@@ -148,7 +151,7 @@ int main(void) {
 
     // Start a loop of reading all word inputs line by line
     // fill the hash map
-    while (inputWordPointer) {
+    while (counter < limit) {
         
         // store word
         words[wordIndex] = inputWordPointer;
@@ -173,8 +176,10 @@ int main(void) {
 
         inputWordPointer = read_line(WORD_LENGTH);
         wordIndex++;
+        counter++;
     }
 
+    printf("\n----PROCESSING----\n");
     find_compound_words(words, hashmap, wordIndex);
     
 
