@@ -82,7 +82,7 @@ int scan_snowflakes(snowflake_node *snowflakes[]) {
         // We're comparing every snowflake in the bucket with each other
         // compare the first item to everyother item
         // then compare second item to every item after the first and itself
-        // n(n-1)
+        // n(n-1)/2
         while (node1 != NULL) {
 
             
